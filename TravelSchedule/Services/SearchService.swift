@@ -11,10 +11,11 @@ import OpenAPIURLSession
 typealias SearchResult = Components.Schemas.SearchResult
 
 protocol SearchServiceProtocol {
-    func getSearchResult(from: String, to: String, on date: String?) async throws -> SearchResult
+    func getSearchResult(from: String, to: String, on date: String?, transportType: String, transfers: Bool) async throws -> SearchResult
 }
 
 final class SearchService: SearchServiceProtocol {
+    
     private let client: Client
     private let apiKey: String
     
@@ -23,16 +24,18 @@ final class SearchService: SearchServiceProtocol {
         self.apiKey = apiKey
     }
     
-    func getSearchResult(from: String, to: String, on date: String? = nil) async throws -> SearchResult {
+    func getSearchResult(from: String, to: String, on date: String? = nil, transportType: String, transfers: Bool) async throws -> SearchResult {
         let response = try await client.getSearchResult(
             query: .init(
                 apikey: apiKey,
                 from: from,
                 to: to,
-                date: date ?? ""
+                date: date ?? "",
+                transport_types: transportType,
+                transfers: String(transfers)
             )
         )
-        
+
         return try response.ok.body.json
     }
 }
