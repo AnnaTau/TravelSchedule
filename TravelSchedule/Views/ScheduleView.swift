@@ -9,13 +9,30 @@ import SwiftUI
 
 struct ScheduleView: View {
     @EnvironmentObject private var viewModel: ScheduleViewModel
+    @EnvironmentObject private var navigationService: Router
+    @StateObject private var storiesVM = StoriesViewModel()
+    @State private var isShowingStories: Bool = false
     
     var body: some View {
         ZStack {
             Color.ypWhite.ignoresSafeArea()
             VStack(spacing: 16) {
+                ScrollView(.horizontal) {
+                    LazyHStack(spacing: 12) {
+                        ForEach(storiesVM.stories) { story in
+                            StoryPreview(story: story)
+                                .onTapGesture {
+                                    storiesVM.showStory(at: story.id)
+                                    isShowingStories = true
+                                }
+                        }
+                    }
+                }
+                .scrollIndicators(.hidden)
+                .frame(height: 188)
+                
                 ZStack {
-                    Color.ypBlue
+                    Color.ypBlueUniversal
                     HStack(spacing: 16) {
                         VStack(alignment: .leading) {
                             SelectDestinationView(
@@ -24,7 +41,7 @@ struct ScheduleView: View {
                                 placeholder: "Откуда"
                             )
                             .onTapGesture {
-                                viewModel.addPath(with: Route.selectFromCityView)
+                                navigationService.push(route: Route.selectFromCityView)
                             }
                             SelectDestinationView(
                                 settlement: viewModel.toSettlement?.title ?? "",
@@ -32,7 +49,7 @@ struct ScheduleView: View {
                                 placeholder: "Куда"
                             )
                             .onTapGesture {
-                                viewModel.addPath(with: Route.selectToCityView)
+                                navigationService.push(route: Route.selectToCityView)
                             }
                         }
                         .frame(height: 96)
@@ -55,7 +72,6 @@ struct ScheduleView: View {
                     .padding(16)
                 }
                 .cornerRadius(20)
-                .padding(.horizontal, 16)
                 .frame(height: 128)
                 
                 Button {
@@ -63,17 +79,22 @@ struct ScheduleView: View {
                     Task {
                         await viewModel.search()
                     }
-                    viewModel.addPath(with: Route.carriersView)
+                    navigationService.push(route: Route.carriersView)
                 } label: {
                     Text("Найти")
                         .font(.system(size: 17, weight: .bold))
                         .foregroundStyle(.white)
                         .frame(width: 150, height: 60)
-                        .background(.ypBlue)
+                        .background(.ypBlueUniversal)
                         .cornerRadius(16)
                 }
                 .opacity(viewModel.setSearchButtonEnable() ? 1 : 0 )
+                Spacer()
             }
+            .padding(.horizontal, 16)
+        }
+        .fullScreenCover(isPresented: $isShowingStories) {
+            StoriesView(storiesViewModel: storiesVM)
         }
     }
 }
