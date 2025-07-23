@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct SelectStationView: View {
+    @EnvironmentObject private var navigationService: Router
     @EnvironmentObject private var viewModel: ScheduleViewModel
     @State private var searchString: String = ""
     private var direction: Direction
@@ -39,7 +40,7 @@ struct SelectStationView: View {
                                     .background()
                                     .onTapGesture {
                                         viewModel.setStation(station: station, direction: direction)
-                                        viewModel.backToRoot()
+                                        navigationService.popRoot()
                                     }
                             }
                         }

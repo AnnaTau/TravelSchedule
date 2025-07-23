@@ -33,7 +33,7 @@ struct SearchBar: View {
                         Image(systemName: "magnifyingglass")
                             .resizable()
                             .frame(width: 17, height: 17)
-                            .foregroundColor(searchText.count > 0 ? .ypBlack : .ypGray)
+                            .foregroundColor(searchText.count > 0 ? .ypBlack : .ypGrayUniversal)
                         
                         Spacer()
                         

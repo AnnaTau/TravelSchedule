@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject private var viewModel: ScheduleViewModel
+    @EnvironmentObject private var navigationService: Router
     @AppStorage(GlobalParams.theme) private var isDarkModeOn = false
     
     var body: some View {
@@ -17,7 +18,7 @@ struct SettingsView: View {
             
             VStack {
                 Toggle("Темная тема", isOn: $isDarkModeOn)
-                    .toggleStyle(SwitchToggleStyle(tint: .ypBlue))
+                    .toggleStyle(SwitchToggleStyle(tint: .ypBlueUniversal))
                     .frame(height: 60)
                 HStack() {
                     Text("Пользовательское соглашение")
@@ -28,7 +29,7 @@ struct SettingsView: View {
                 .background(.ypWhite)
                 .frame(height: 60)
                 .onTapGesture {
-                    viewModel.addPath(with: Route.userAgreementView)
+                    navigationService.push(route: Route.userAgreementView)
                 }
                 Spacer()
                 VStack(spacing: 12) {

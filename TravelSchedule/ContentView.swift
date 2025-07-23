@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @ObservedObject var navigationService = Router.shared
+    @EnvironmentObject private var navigationService: Router
     
     init() {
         let appearance = UITabBarAppearance()

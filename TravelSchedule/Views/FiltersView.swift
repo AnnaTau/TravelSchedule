@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct FiltersView: View {
+    @EnvironmentObject private var navigationService: Router
     @EnvironmentObject private var viewModel: ScheduleViewModel
     
     var body: some View {
@@ -38,7 +39,7 @@ struct FiltersView: View {
                 Button {
                     viewModel.setFilters()
                     viewModel.isFilter = !viewModel.departureTimeIntervals.isEmpty || !viewModel.hasTransfers ? true : false
-                    viewModel.popLast()
+                    navigationService.popLast()
                 } label: {
                     Label {
                         HStack {
@@ -51,7 +52,7 @@ struct FiltersView: View {
                     
                 }
                 .frame(idealWidth: 343, maxWidth: .infinity, maxHeight: 60)
-                .background(.ypBlue)
+                .background(.ypBlueUniversal)
                 .clipShape(.rect(cornerRadius: 16))
                 .padding(.bottom, 24)
                 .toolbarRole(.editor)

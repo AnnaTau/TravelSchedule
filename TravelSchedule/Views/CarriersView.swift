@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct CarriersView: View {
+    @EnvironmentObject private var navigationService: Router
     @EnvironmentObject private var viewModel: ScheduleViewModel
     
     var body: some View {
@@ -38,7 +39,7 @@ struct CarriersView: View {
                                         .frame(height: 104)
                                         .onTapGesture {
                                             viewModel.carrier = segment.thread?.carrier
-                                            viewModel.addPath(with: Route.selectCarrierInfoView)
+                                            navigationService.push(route: Route.selectCarrierInfoView)
                                         }
                                 }
                             }
@@ -49,7 +50,7 @@ struct CarriersView: View {
                             Spacer()
                             Button {
                                 viewModel.departureTimeIntervals.removeAll()
-                                viewModel.addPath(with: Route.filtersView)
+                                navigationService.push(route: Route.filtersView)
                             } label: {
                                 Label {
                                     HStack {
@@ -58,12 +59,12 @@ struct CarriersView: View {
                                             .foregroundStyle(.ypWhiteUniversal)
                                         Circle()
                                             .frame(width: 8, height: 8)
-                                            .foregroundStyle(viewModel.isFilter ? .ypRedUniversal : .ypBlue)
+                                            .foregroundStyle(viewModel.isFilter ? .ypRedUniversal : .ypBlueUniversal)
                                     }
                                 } icon: {}
                             }
                             .frame(idealWidth: 343, maxWidth: .infinity, maxHeight: 60)
-                            .background(.ypBlue)
+                            .background(.ypBlueUniversal)
                             .clipShape(.rect(cornerRadius: 16))
                             .padding(.bottom, 8)
                         }
