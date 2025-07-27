@@ -16,18 +16,16 @@ final class ScheduleViewModel: ObservableObject {
     @Published var toSettlement: Settlements?
     @Published var fromStation: Stations?
     @Published var toStation: Stations?
-    @Published var carriersList: [Segments] = []
-    @Published var carrier: Carrier?
     @Published var isLoading: Bool = true
-    @Published var isFilter: Bool = false
-    @Published var filteredCarriersList: [Segments] = []
-    @Published var departureTimeIntervals: [DepartureTimeInterval] = []
-    @Published var hasTransfers: Bool = true
+    
+    private var hasTransfers: Bool = true
     private let dataProvider: DataProviderProtocol
     
     init() {
         dataProvider = DataProvider()
-        Task { await getAllSettlements() }
+        Task {
+            await getAllSettlements()
+        }
     }
     
     func setSettlementsStations(on settlement: Settlements, direction: Direction) {
@@ -58,63 +56,17 @@ final class ScheduleViewModel: ObservableObject {
     }
     
     @MainActor
-    func search() async {
+    func search() async throws -> SearchResult? {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
         let date = dateFormatter.string(from: Date())
         
         guard let fromCode = fromStation?.codes?.yandex_code,
-              let toCode = toStation?.codes?.yandex_code else { return }
+              let toCode = toStation?.codes?.yandex_code else { return nil }
         
-        do {
-            let searchResult = try await dataProvider.getSearchResult(fromCode: fromCode, toCode: toCode, on: date, transportType: "train", hasTransfers: hasTransfers)
-            carriersList = searchResult.segments ?? []
-            filteredCarriersList = carriersList
-        } catch ErrorsType.internetConnectError {
-            print("internet connect error")
-        } catch ErrorsType.serverError {
-            print("server error")
-        } catch {
-            print(String(describing: error))
-        }
-        
+        let searchResult = try await dataProvider.getSearchResult(fromCode: fromCode, toCode: toCode, on: date, transportType: "train", hasTransfers: hasTransfers)
         isLoading = false
-    }
-    
-    func setFilters() {
-        var filteredCarriers = carriersList
-        if !departureTimeIntervals.isEmpty {
-            filteredCarriers = filteredCarriers.filter { segment in
-                let time = departureTime(departure: segment.departure ?? "")
-                switch time {
-                case 6...12:
-                    return departureTimeIntervals.contains(.morning)
-                case 12...18:
-                    return departureTimeIntervals.contains(.afternoon)
-                case 18...23:
-                    return departureTimeIntervals.contains(.evening)
-                case 0...6:
-                    return departureTimeIntervals.contains(.night)
-                default:
-                    return false
-                }
-            }
-        }
-        if !hasTransfers {
-            filteredCarriers = filteredCarriers.filter {$0.has_transfers == false }
-        }
-        filteredCarriersList = filteredCarriers
-    }
-    
-    func dateFormatter(date: String, with format: String, local: String) -> String {
-        let generalFormatter = DateFormatter()
-        generalFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: local)
-        formatter.dateFormat = format
-        
-        return formatter.string(from: generalFormatter.date(from: date) ?? Date())
+        return searchResult
     }
     
     func setSearchButtonEnable() -> Bool {
@@ -132,22 +84,18 @@ final class ScheduleViewModel: ObservableObject {
                 .flatMap { $0.regions ?? [] }
                 .flatMap { $0.settlements ?? [] }
                 .filter { testSettlements.contains($0.title ?? "") } ?? []
+            
         } catch ErrorsType.internetConnectError {
-            print("internet connect error")
+            print("internet connection error")
         } catch ErrorsType.serverError {
             print("server error")
         } catch {
             print(String(describing: error))
         }
+        
         allSettlements = stationList.filter { $0.title != ""}
         isLoading = allSettlements.isEmpty
         allSettlements.sort {$0.title ?? "" < $1.title ?? "" }
     }
     
-    private func departureTime(departure: String) -> Int {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        let hour = Calendar.current.component(.hour, from: dateFormatter.date(from: departure) ?? Date())
-        return hour
-    }
 }
