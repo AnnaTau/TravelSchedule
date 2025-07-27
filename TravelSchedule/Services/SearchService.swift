@@ -10,11 +10,11 @@ import OpenAPIURLSession
 
 typealias SearchResult = Components.Schemas.SearchResult
 
-protocol SearchServiceProtocol {
+protocol SearchServiceProtocol: Sendable {
     func getSearchResult(from: String, to: String, on date: String?, transportType: String, transfers: Bool) async throws -> SearchResult
 }
 
-final class SearchService: SearchServiceProtocol {
+actor SearchService: SearchServiceProtocol {
     
     private let client: Client
     private let apiKey: String

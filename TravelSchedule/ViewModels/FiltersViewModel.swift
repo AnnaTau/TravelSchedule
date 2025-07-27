@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 final class FiltersViewModel: ObservableObject {
     @Published var departureTimeIntervals: [DepartureTimeInterval] = []
     @Published var isFilter: Bool = false
@@ -19,13 +20,13 @@ final class FiltersViewModel: ObservableObject {
             filteredCarriers = filteredCarriers.filter { segment in
                 let time = departureTime(departure: segment.departure ?? "")
                 switch time {
-                case 6...12:
+                case 6..<12:
                     return departureTimeIntervals.contains(.morning)
-                case 12...18:
+                case 12..<18:
                     return departureTimeIntervals.contains(.afternoon)
-                case 18...23:
+                case 18..<23:
                     return departureTimeIntervals.contains(.evening)
-                case 0...6:
+                case 0..<6, 23...23:
                     return departureTimeIntervals.contains(.night)
                 default:
                     return false

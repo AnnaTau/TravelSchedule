@@ -8,6 +8,7 @@
 import Foundation
 
 @Observable
+@MainActor
 final class SettingsViewModel {
     var isDarkModeOn: Bool = false {
         didSet {

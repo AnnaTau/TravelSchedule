@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 final class CarriersViewModel: ObservableObject {
     @Published var carriersList: [Segments] = []
     @Published var carrier: Carrier?

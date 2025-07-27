@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 final class StoriesViewModel: ObservableObject {
     @Published var stories = StoryModel.storiesData
     @Published var selectStoryIndex: Int = 0

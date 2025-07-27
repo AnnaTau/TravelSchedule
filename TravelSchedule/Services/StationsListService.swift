@@ -11,11 +11,11 @@ import Foundation
 
 typealias StationsList = Components.Schemas.StationsList
 
-protocol StationsListServiceProtocol {
+protocol StationsListServiceProtocol: Sendable {
     func getStationsList() async throws -> StationsList
 }
 
-final class StationsListService: StationsListServiceProtocol {
+actor StationsListService: StationsListServiceProtocol {
     private let client: Client
     private let apiKey: String
     

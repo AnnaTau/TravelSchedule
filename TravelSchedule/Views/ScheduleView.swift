@@ -81,6 +81,10 @@ struct ScheduleView: View {
                         do {
                             let searchResult = try await viewModel.search()
                             carriersVM.carriers(from: searchResult)
+                        } catch ErrorsType.serverError {
+                            navigationService.push(route: Route.serverErrorView)
+                        } catch ErrorsType.internetConnectError {
+                            navigationService.push(route: Route.noInternetView)
                         } catch {
                             print(error.localizedDescription)
                         }
