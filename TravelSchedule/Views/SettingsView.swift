@@ -10,14 +10,14 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject private var viewModel: ScheduleViewModel
     @EnvironmentObject private var navigationService: Router
-    @AppStorage(GlobalParams.theme) private var isDarkModeOn = false
+    @State var settingsViewModel: SettingsViewModel = SettingsViewModel()
     
     var body: some View {
         ZStack {
             Color.ypWhite.ignoresSafeArea()
             
             VStack {
-                Toggle("Темная тема", isOn: $isDarkModeOn)
+                Toggle("Темная тема", isOn: $settingsViewModel.isDarkModeOn)
                     .toggleStyle(SwitchToggleStyle(tint: .ypBlueUniversal))
                     .frame(height: 60)
                 HStack() {

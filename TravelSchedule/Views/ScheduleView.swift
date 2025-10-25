@@ -11,6 +11,7 @@ struct ScheduleView: View {
     @EnvironmentObject private var viewModel: ScheduleViewModel
     @EnvironmentObject private var navigationService: Router
     @StateObject private var storiesVM = StoriesViewModel()
+    @ObservedObject var carriersVM: CarriersViewModel
     @State private var isShowingStories: Bool = false
     
     var body: some View {
@@ -77,7 +78,16 @@ struct ScheduleView: View {
                 Button {
                     viewModel.isLoading = true
                     Task {
-                        await viewModel.search()
+                        do {
+                            let searchResult = try await viewModel.search()
+                            carriersVM.carriers(from: searchResult)
+                        } catch ErrorsType.serverError {
+                            navigationService.push(route: Route.serverErrorView)
+                        } catch ErrorsType.internetConnectError {
+                            navigationService.push(route: Route.noInternetView)
+                        } catch {
+                            print(error.localizedDescription)
+                        }
                     }
                     navigationService.push(route: Route.carriersView)
                 } label: {
@@ -100,6 +110,6 @@ struct ScheduleView: View {
 }
 
 #Preview {
-    ScheduleView()
+    ScheduleView(carriersVM: CarriersViewModel())
         .environmentObject(ScheduleViewModel())
 }

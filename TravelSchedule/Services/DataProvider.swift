@@ -14,12 +14,12 @@ typealias Stations = Components.Schemas.StationsFromStationsList
 typealias Segments = Components.Schemas.Segments
 typealias Carrier = Components.Schemas.Carrier
 
-protocol DataProviderProtocol {
+protocol DataProviderProtocol: Sendable {
     func getSearchResult(fromCode: String, toCode: String, on date: String?, transportType: String, hasTransfers: Bool) async throws -> SearchResult
     func getStationsList() async throws -> StationsList
 }
 
-final class DataProvider: DataProviderProtocol {
+actor DataProvider: DataProviderProtocol {
     
     func getSearchResult(fromCode: String, toCode: String, on date: String? = nil, transportType: String, hasTransfers: Bool) async throws -> SearchResult {
         let client = createClient()

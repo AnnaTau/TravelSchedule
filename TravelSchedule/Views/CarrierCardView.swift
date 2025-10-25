@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct CarrierCardView: View {
-    @EnvironmentObject private var viewModel: ScheduleViewModel
     private let segment: Segments
     private let startDate: String
     private let departureTime: String
@@ -86,5 +85,4 @@ struct CarrierCardView: View {
 
 #Preview {
     CarrierCardView(segmentInfo: Segments(), startDate: "", departureTime: "", arrivalTime: "")
-        .environmentObject(ScheduleViewModel())
 }

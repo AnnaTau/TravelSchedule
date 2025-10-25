@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct CarriersView: View {
-    @EnvironmentObject private var navigationService: Router
     @EnvironmentObject private var viewModel: ScheduleViewModel
+    @EnvironmentObject private var navigationService: Router
+    @ObservedObject var carriersVM: CarriersViewModel
+    @ObservedObject var filtersVM: FiltersViewModel
     
     var body: some View {
         ZStack {
@@ -25,31 +27,30 @@ struct CarriersView: View {
                 if viewModel.isLoading {
                     Spacer()
                     ProgressView()
-                } else if !viewModel.filteredCarriersList.isEmpty || viewModel.isFilter {
+                } else if !carriersVM.filteredCarriersList.isEmpty {
                     ZStack(alignment: .bottom) {
                         ScrollView {
                             LazyVStack(spacing: 8) {
-                                ForEach(viewModel.filteredCarriersList, id: \.self) { segment in
+                                ForEach(carriersVM.filteredCarriersList, id: \.thread?.uid) { segment in
                                     CarrierCardView(
                                         segmentInfo: segment,
-                                        startDate: viewModel.dateFormatter(date: segment.start_date ?? "", with: "dd MMMM", local: "Ru_ru"),
-                                        departureTime: viewModel.dateFormatter(date: segment.departure ?? "", with: "HH:mm", local: "Ru_ru"),
-                                        arrivalTime: viewModel.dateFormatter(date: segment.arrival ?? "", with: "HH:mm", local: "Ru_ru")
+                                        startDate: carriersVM.dateFormatter(date: segment.start_date ?? "", with: "dd MMMM", local: "Ru_ru"),
+                                        departureTime: carriersVM.dateFormatter(date: segment.departure ?? "", with: "HH:mm", local: "Ru_ru"),
+                                        arrivalTime: carriersVM.dateFormatter(date: segment.arrival ?? "", with: "HH:mm", local: "Ru_ru")
                                     )
                                         .frame(height: 104)
                                         .onTapGesture {
-                                            viewModel.carrier = segment.thread?.carrier
+                                            carriersVM.carrier = segment.thread?.carrier
                                             navigationService.push(route: Route.selectCarrierInfoView)
                                         }
                                 }
                             }
                         }
                         .scrollIndicators(.hidden)
-                        
                         VStack {
                             Spacer()
                             Button {
-                                viewModel.departureTimeIntervals.removeAll()
+                                filtersVM.departureTimeIntervals.removeAll()
                                 navigationService.push(route: Route.filtersView)
                             } label: {
                                 Label {
@@ -59,9 +60,10 @@ struct CarriersView: View {
                                             .foregroundStyle(.ypWhiteUniversal)
                                         Circle()
                                             .frame(width: 8, height: 8)
-                                            .foregroundStyle(viewModel.isFilter ? .ypRedUniversal : .ypBlueUniversal)
+                                            .foregroundStyle(filtersVM.isFilter ? .ypRedUniversal : .ypBlueUniversal)
                                     }
                                 } icon: {}
+                                
                             }
                             .frame(idealWidth: 343, maxWidth: .infinity, maxHeight: 60)
                             .background(.ypBlueUniversal)
@@ -69,9 +71,35 @@ struct CarriersView: View {
                             .padding(.bottom, 8)
                         }
                     }
-                } else {
+                } else if carriersVM.filteredCarriersList.isEmpty {
                     Spacer()
                     NotFoundView(text: "Вариантов нет")
+                    
+                    if filtersVM.isFilter {
+                        VStack {
+                            Spacer()
+                            Button {
+                                filtersVM.departureTimeIntervals.removeAll()
+                                navigationService.push(route: Route.filtersView)
+                            } label: {
+                                Label {
+                                    HStack {
+                                        Text("Уточнить время")
+                                            .font(.system(size: 17, weight: .bold))
+                                            .foregroundStyle(.ypWhiteUniversal)
+                                        Circle()
+                                            .frame(width: 8, height: 8)
+                                            .foregroundStyle(filtersVM.isFilter ? .ypRedUniversal : .ypBlueUniversal)
+                                    }
+                                } icon: {}
+                                
+                            }
+                            .frame(idealWidth: 343, maxWidth: .infinity, maxHeight: 60)
+                            .background(.ypBlueUniversal)
+                            .clipShape(.rect(cornerRadius: 16))
+                            .padding(.bottom, 8)
+                        }
+                    }
                 }
                 Spacer()
                     .toolbarRole(.editor)
@@ -83,6 +111,6 @@ struct CarriersView: View {
 }
 
 #Preview {
-    CarriersView()
+    CarriersView(carriersVM: CarriersViewModel(), filtersVM: FiltersViewModel())
         .environmentObject(ScheduleViewModel())
 }

@@ -9,6 +9,9 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject private var navigationService: Router
+    @EnvironmentObject private var viewModel: ScheduleViewModel
+    @StateObject private var carriersViewModel = CarriersViewModel()
+    @StateObject private var filtersViewModel = FiltersViewModel()
     
     init() {
         let appearance = UITabBarAppearance()
@@ -24,7 +27,7 @@ struct ContentView: View {
             ZStack {
                 Color.ypWhite.ignoresSafeArea()
                 TabView {
-                    ScheduleView()
+                    ScheduleView(carriersVM: carriersViewModel)
                         .tabItem {
                             Image("arrowUp")
                                 .renderingMode(.template)
@@ -49,20 +52,32 @@ struct ContentView: View {
                     case Route.selectToStationView:
                         SelectStationView(direction: .to)
                     case Route.carriersView:
-                        CarriersView()
+                        CarriersView(carriersVM: carriersViewModel, filtersVM: filtersViewModel)
                     case Route.noInternetView:
                         ErrorsView(error: .internetConnectError)
                     case Route.serverErrorView:
                         ErrorsView(error: .serverError)
                     case .selectCarrierInfoView:
-                        CarrierInfoView()
+                        CarrierInfoView(carriersVM: carriersViewModel)
                     case .filtersView:
-                        FiltersView()
+                        FiltersView(filtersViewModel: filtersViewModel, carriersVM: carriersViewModel)
                     }
                 }
             }
         }
         .tint(.ypBlack)
+        .task {
+            do {
+                try await viewModel.getAllSettlements()
+            } catch ErrorsType.serverError {
+                navigationService.push(route: Route.serverErrorView)
+            } catch ErrorsType.internetConnectError {
+                navigationService.push(route: Route.noInternetView)
+            } catch {
+                print(String(describing: error))
+            }
+        }
+
     }
 }
 

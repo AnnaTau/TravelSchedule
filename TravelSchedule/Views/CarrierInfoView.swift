@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct CarrierInfoView: View {
-    @EnvironmentObject private var viewModel: ScheduleViewModel
+    @ObservedObject var carriersVM: CarriersViewModel
     
     var body: some View {
         ZStack {
             Color.ypWhite.ignoresSafeArea()
             VStack(alignment: .leading) {
                 VStack {
-                    AsyncImage(url: URL(string: viewModel.carrier?.logo ?? "")) { phase in
+                    AsyncImage(url: URL(string: carriersVM.carrier?.logo ?? "")) { phase in
                         switch phase {
                         case .failure:
                             Image(systemName: "photo")
@@ -37,12 +37,12 @@ struct CarrierInfoView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 16) {
-                    Text(viewModel.carrier?.title ?? "информации нет")
+                    Text(carriersVM.carrier?.title ?? "информации нет")
                         .font(.system(size: 24, weight: .bold))
                     VStack(alignment: .leading, spacing: 0) {
                         Text("E-mail")
                             .font(.system(size: 17, weight: .regular))
-                        Text(viewModel.carrier?.email ?? "информации нет")
+                        Text(carriersVM.carrier?.email ?? "информации нет")
                             .font(.system(size: 12, weight: .regular))
                             .foregroundStyle(.ypBlueUniversal)
                     }
@@ -50,7 +50,7 @@ struct CarrierInfoView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         Text("Телефон")
                             .font(.system(size: 17, weight: .regular))
-                        Text(viewModel.carrier?.phone ?? "информации нет")
+                        Text(carriersVM.carrier?.phone ?? "информации нет")
                             .font(.system(size: 12, weight: .regular))
                             .foregroundStyle(.ypBlueUniversal)
                     }
@@ -67,7 +67,5 @@ struct CarrierInfoView: View {
 }
 
 #Preview {
-    CarrierInfoView()
-        .environmentObject(ScheduleViewModel())
+    CarrierInfoView(carriersVM: CarriersViewModel())
 }
-
